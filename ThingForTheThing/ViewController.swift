@@ -151,15 +151,11 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
 //                    push.pushDirection = CGVectorMake(CGFloat((Double(arc4random()) / 0x100000000) * (1.0 - -1.0) + -1.0), CGFloat(channel.averagePowerLevel / Float(50.0)))
                     let angle = CGFloat((Double(arc4random()) / 0x100000000) * (3 * M_PI_4 - M_PI_4) + M_PI_4)
                     let force = CGFloat(((400 - (channel.averagePowerLevel) * (channel.averagePowerLevel)) / 400.0))
-                    NSLog("force: \(force) | angle: \(angle)")
                     push.angle = angle
                     push.magnitude = force
                     self.animator?.addBehavior(push)
                 })
             }
-
-  print("Audio Power Level = \(channel.averagePowerLevel) & Peak Hold Level = \(channel.peakHoldLevel)")
-
         }
     }
    func onDrag(recognizer: UIPanGestureRecognizer) {
