@@ -119,6 +119,7 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
                     let pLevel = CGFloat(((400 - (channel.averagePowerLevel) * (channel.averagePowerLevel)) / 10.0))//CGFloat(channel.averagePowerLevel + 40)
                     
                     let bubble = Bubble(frame: CGRectMake(0, 0, pLevel, pLevel))
+                    
                     bubble.delegate = self
                     
                     let hue = CGFloat(arc4random_uniform(285)) / 255
@@ -196,7 +197,7 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
     }
     
     func addSplatter(forBubble bubble: Bubble) {
-        let imageView = UIImageView(image: UIImage(named: "splatter")?.imageWithOverlayColor(bubble.backgroundColor))
+        let imageView = UIImageView(image: UIImage(named: "splat")?.imageWithOverlayColor(bubble.backgroundColor))
         imageView.frame = bubble.frame
         view.insertSubview(imageView, atIndex: 0)
     }
