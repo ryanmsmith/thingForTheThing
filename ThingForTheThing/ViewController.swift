@@ -21,7 +21,7 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
     let collisionBehavior: UICollisionBehavior = UICollisionBehavior()
     var bgColor = UIColor(hue: 1, saturation: 0.5, brightness: 0.9, alpha: 1.0)
     var frameTime = 0.0
-    
+    var gravity = UIGravityBehavior()
     let motionManager = CMMotionManager()
     
     var bubbles: [Bubble] = []
@@ -31,6 +31,8 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
        
         NSTimer.scheduledTimerWithTimeInterval(1.0/60.0, target: self, selector: "changeColor", userInfo: nil, repeats: true)
 
+
+         gravity = UIGravityBehavior()
         
         do {
             try audioSession.setCategory(AVAudioSessionCategoryRecord)
@@ -131,6 +133,14 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
                     
                     self.collisionBehavior.addItem(bubble)
                     self.bubbleBehavior.addItem(bubble)
+                    
+                    for bubble in self.bubbles {
+                        self.gravity.addItem(bubble)
+                    }
+                    
+                    self.animator?.addBehavior(self.gravity)
+                    
+
                     
                     let push = UIPushBehavior(items: [bubble], mode: UIPushBehaviorMode.Instantaneous)
 //                    push.pushDirection = CGVectorMake(CGFloat((Double(arc4random()) / 0x100000000) * (1.0 - -1.0) + -1.0), CGFloat(channel.averagePowerLevel / Float(50.0)))
