@@ -74,13 +74,7 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
         animator?.addBehavior(bubbleBehavior)
         
      
-        for bubble in bubbles {
-            gravity.addItem(bubble)
-        }
         
-        animator?.addBehavior(gravity)
-
-
     }
     
     
@@ -134,6 +128,14 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
                     
                     self.collisionBehavior.addItem(bubble)
                     self.bubbleBehavior.addItem(bubble)
+                    
+                    for bubble in self.bubbles {
+                        self.gravity.addItem(bubble)
+                    }
+                    
+                    self.animator?.addBehavior(self.gravity)
+                    
+
                     
                     let push = UIPushBehavior(items: [bubble], mode: UIPushBehaviorMode.Instantaneous)
 //                    push.pushDirection = CGVectorMake(CGFloat((Double(arc4random()) / 0x100000000) * (1.0 - -1.0) + -1.0), CGFloat(channel.averagePowerLevel / Float(50.0)))
