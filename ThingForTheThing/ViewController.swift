@@ -16,7 +16,9 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
     let audioDataOutput = AVCaptureAudioDataOutput()
     let audioCaptureSession = AVCaptureSession()
     
-
+    var animator: UIDynamicAnimator?
+    let bubbleBehavior: UIDynamicItemBehavior = UIDynamicItemBehavior()
+    let collisionBehavior: UICollisionBehavior = UICollisionBehavior()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,6 +53,17 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
         
         view.addSubview(powerCircle)
         powerCircle.backgroundColor = UIColor.blueColor()
+        
+        bubbleBehavior.elasticity = 0.5
+        bubbleBehavior.friction = 0.5
+        bubbleBehavior.resistance = 0.5
+        
+        
+        animator = UIDynamicAnimator(referenceView: view)
+        animator?.addBehavior(collisionBehavior)
+        animator?.addBehavior(bubbleBehavior)
+        
+
     }
     
     
@@ -71,7 +84,7 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     
                     
-                    let bubble = UIView(frame: CGRectMake(0, 0, 50, 50))
+                    let bubble = Bubble(frame: CGRectMake(0, 0, 50, 50))
                     
                     let hue = CGFloat(arc4random_uniform(285)) / 255
                     bubble.backgroundColor = UIColor(hue: hue, saturation: 1, brightness: 3, alpha: 0.4)
@@ -80,17 +93,24 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
                     bubble.center = CGPointMake(self.view.center.x, self.view.frame.height)
                     self.view.addSubview(bubble)
                     
-                    UIView.animateWithDuration(0.4, animations: { () -> Void in
-                        let x = arc4random_uniform(UInt32(self.view.frame.width))
-                        let y = self.view.frame.height - pLevel * 6
-                        bubble.center = CGPointMake(CGFloat(x), y)
-                        //bubble.center = self.view.center
-                        
-                        }, completion: { (success) -> Void in
-                            
-                            //bubble.removeFromSuperview()
-                            
-                    })
+                    
+                    self.collisionBehavior.addItem(bubble)
+                    self.bubbleBehavior.addItem(bubble)
+                    
+                    let push = UIPushBehavior(items: [bubble], mode: UIPushBehaviorMode.Instantaneous)
+                    push.pushDirection = CGVectorMake(CGFloat((Double(arc4random()) / 0x100000000) * (1.0 - -1.0) + -1.0), -1.0)
+                    self.animator?.addBehavior(push)
+//                    UIView.animateWithDuration(0.4, animations: { () -> Void in
+//                        let x = arc4random_uniform(UInt32(self.view.frame.width))
+//                        let y = self.view.frame.height - pLevel * 6
+//                        bubble.center = CGPointMake(CGFloat(x), y)
+//                        //bubble.center = self.view.center
+//                        
+//                        }, completion: { (success) -> Void in
+//                            
+//                            //bubble.removeFromSuperview()
+//                            
+//                    })
                     
                     
                 })
