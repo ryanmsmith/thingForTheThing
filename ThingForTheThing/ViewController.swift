@@ -61,6 +61,7 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
         
         animator = UIDynamicAnimator(referenceView: view)
         animator?.addBehavior(collisionBehavior)
+        collisionBehavior.translatesReferenceBoundsIntoBoundary = true
         animator?.addBehavior(bubbleBehavior)
         
 
