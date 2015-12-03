@@ -15,13 +15,17 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
     let audioSession = AVAudioSession()
     let audioDataOutput = AVCaptureAudioDataOutput()
     let audioCaptureSession = AVCaptureSession()
-    
+    var snappers = [UIView: UISnapBehavior]()
     var animator: UIDynamicAnimator?
     let bubbleBehavior: UIDynamicItemBehavior = UIDynamicItemBehavior()
     let collisionBehavior: UICollisionBehavior = UICollisionBehavior()
-    
+    var bgColor = UIColor(hue: 1, saturation: 0.5, brightness: 0.9, alpha: 1.0)
+    var frameTime = 0.0
     override func viewDidLoad() {
         super.viewDidLoad()
+       
+        NSTimer.scheduledTimerWithTimeInterval(1.0/60.0, target: self, selector: "changeColor", userInfo: nil, repeats: true)
+
         
         do {
             try audioSession.setCategory(AVAudioSessionCategoryRecord)
@@ -64,9 +68,27 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
         collisionBehavior.translatesReferenceBoundsIntoBoundary = true
         animator?.addBehavior(bubbleBehavior)
         
+     
 
     }
     
+    
+    func changeColor() {
+        // How much time has passed since the last frame?
+        let dt = CACurrentMediaTime() - frameTime
+        
+        var hue = CGFloat(0.0)
+        var saturation = CGFloat(0.0)
+        var brightness = CGFloat(0.0)
+        var alpha = CGFloat(0.0)
+        if(bgColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)) {
+            hue -= CGFloat(dt*0.1)
+            bgColor = UIColor(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
+            self.view.backgroundColor = bgColor
+        }
+        frameTime = CACurrentMediaTime()
+    }
+
     
     let powerCircle = UIView()
     
@@ -94,6 +116,7 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
                     bubble.center = CGPointMake(self.view.center.x, self.view.frame.height)
                     self.view.addSubview(bubble)
                     
+                    bubble.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: "onDrag:"))
                     
                     self.collisionBehavior.addItem(bubble)
                     self.bubbleBehavior.addItem(bubble)
@@ -117,21 +140,33 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
                 })
                 
             }
-            
-            
-            
-            
-            print("Audio Power Level = \(channel.averagePowerLevel) & Peak Hold Level = \(channel.peakHoldLevel)")
+  print("Audio Power Level = \(channel.averagePowerLevel) & Peak Hold Level = \(channel.peakHoldLevel)")
         }
         
         
     }
-    
-    override func touchesBegan(touches: Set<UITouch>?, withEvent event: UIEvent?) {
-        super.touchesBegan(touches!, withEvent: event)
-        
+   func onDrag(recognizer: UIPanGestureRecognizer) {
+        if let bubView = recognizer.view {
+     
+            if let snapper = snappers[bubView] {
+                animator!.removeBehavior(snapper)
+                snappers[view] = nil
+            }
+      
+            if recognizer.state == .Changed {
+                let snapper = UISnapBehavior(
+                    item: bubView,
+                    snapToPoint: recognizer.locationInView(self.view)
+                )
+                
+                // Save the snapping behaviour in the dictionary so we can remove it when the finger moves next time.
+                snappers[bubView] = snapper
+                snapper.damping = 3
+                animator!.addBehavior(snapper)
+            }
+        }
     }
-    
+
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
