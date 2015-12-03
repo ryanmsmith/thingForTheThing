@@ -190,7 +190,15 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
         bubbles.removeAtIndex(bubbles.indexOf(bubble)!)
         collisionBehavior.removeItem(bubble)
         bubbleBehavior.removeItem(bubble)
+        addSplatter(forBubble: bubble)
         bubble.removeFromSuperview()
+        
+    }
+    
+    func addSplatter(forBubble bubble: Bubble) {
+        let imageView = UIImageView(image: UIImage(named: "splatter")?.imageWithOverlayColor(bubble.backgroundColor))
+        imageView.frame = bubble.frame
+        view.insertSubview(imageView, atIndex: 0)
     }
     
 }
