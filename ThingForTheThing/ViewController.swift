@@ -8,7 +8,7 @@
 
 import UIKit
 import AVFoundation
-
+import CoreMotion
 
 class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDelegate, BubbleDelegate {
     
@@ -21,6 +21,8 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
     let collisionBehavior: UICollisionBehavior = UICollisionBehavior()
     var bgColor = UIColor(hue: 1, saturation: 0.5, brightness: 0.9, alpha: 1.0)
     var frameTime = 0.0
+    
+    let motionManager = CMMotionManager()
     
     var bubbles: [Bubble] = []
 
@@ -71,8 +73,10 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
         collisionBehavior.translatesReferenceBoundsIntoBoundary = true
         animator?.addBehavior(bubbleBehavior)
         
-     
-
+        motionManager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue()) { (motion: CMDeviceMotion?, error: NSError?) -> Void in
+            
+        }
+        
     }
     
     
@@ -113,7 +117,9 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
                     let hue = CGFloat(arc4random_uniform(285)) / 255
                     bubble.backgroundColor = UIColor(hue: hue, saturation: 1, brightness: 3, alpha: 0.4)
                     bubble.layer.cornerRadius = bubble.bounds.size.width / 2.0
-                    bubble.alpha = 0.5
+//                    bubble.layer.borderWidth = 0.5
+//                    bubble.layer.borderColor = bubble.backgroundColor?.colorWithAlphaComponent(1.0).CGColor
+                    bubble.alpha = 1.0
                     bubble.center = CGPointMake(self.view.center.x, self.view.frame.height)
                     self.view.addSubview(bubble)
 
