@@ -21,7 +21,7 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
     let collisionBehavior: UICollisionBehavior = UICollisionBehavior()
     var bgColor = UIColor(hue: 1, saturation: 0.5, brightness: 0.9, alpha: 1.0)
     var frameTime = 0.0
-    
+    var gravity = UIGravityBehavior()
     var bubbles: [Bubble] = []
 
     override func viewDidLoad() {
@@ -29,6 +29,8 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
        
         NSTimer.scheduledTimerWithTimeInterval(1.0/60.0, target: self, selector: "changeColor", userInfo: nil, repeats: true)
 
+        
+         gravity = UIGravityBehavior()
         
         do {
             try audioSession.setCategory(AVAudioSessionCategoryRecord)
@@ -72,8 +74,15 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
         animator?.addBehavior(bubbleBehavior)
         
      
+        for bubble in bubbles {
+            gravity.addItem(bubble)
+        }
+        
+        animator?.addBehavior(gravity)
+
 
     }
+    
     
     
     func changeColor() {
