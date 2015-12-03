@@ -76,11 +76,16 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
         animator?.addBehavior(bubbleBehavior)
         
         motionManager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue()) { (motion: CMDeviceMotion?, error: NSError?) -> Void in
-            
+            if let motion = motion {
+                self.gravity.gravityDirection = CGVectorMake(CGFloat(motion.gravity.x), CGFloat(-motion.gravity.y))
+            }
         }
         
     }
     
+    deinit {
+        motionManager.stopDeviceMotionUpdates()
+    }
     
     func changeColor() {
         // How much time has passed since the last frame?
