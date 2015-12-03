@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 
 
-class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDelegate {
+class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDelegate, BubbleDelegate {
     
     let audioSession = AVAudioSession()
     let audioDataOutput = AVCaptureAudioDataOutput()
@@ -19,6 +19,8 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
     var animator: UIDynamicAnimator?
     let bubbleBehavior: UIDynamicItemBehavior = UIDynamicItemBehavior()
     let collisionBehavior: UICollisionBehavior = UICollisionBehavior()
+    
+    var bubbles: [Bubble] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -74,57 +76,39 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!) {
         
         for channel in connection.audioChannels as! [AVCaptureAudioChannel] {
-            
-            
-            let pLevel = CGFloat((channel.averagePowerLevel + 50) * 2)
-            
-            if channel.averagePowerLevel > -10 {
+            if channel.averagePowerLevel > -20 {
                 
                 //blow bubble
                 
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     
+                    let pLevel = CGFloat(((400 - (channel.averagePowerLevel) * (channel.averagePowerLevel)) / 10.0))//CGFloat(channel.averagePowerLevel + 40)
                     
-                    let bubble = Bubble(frame: CGRectMake(0, 0, 50, 50))
+                    let bubble = Bubble(frame: CGRectMake(0, 0, pLevel, pLevel))
+                    bubble.delegate = self
                     
                     let hue = CGFloat(arc4random_uniform(285)) / 255
                     bubble.backgroundColor = UIColor(hue: hue, saturation: 1, brightness: 3, alpha: 0.4)
-                    bubble.layer.cornerRadius = 24
+                    bubble.layer.cornerRadius = bubble.bounds.size.width / 2.0
                     bubble.alpha = 0.5
                     bubble.center = CGPointMake(self.view.center.x, self.view.frame.height)
                     self.view.addSubview(bubble)
-                    
+                    self.bubbles.append(bubble) 
                     
                     self.collisionBehavior.addItem(bubble)
                     self.bubbleBehavior.addItem(bubble)
                     
                     let push = UIPushBehavior(items: [bubble], mode: UIPushBehaviorMode.Instantaneous)
-                    push.pushDirection = CGVectorMake(CGFloat((Double(arc4random()) / 0x100000000) * (1.0 - -1.0) + -1.0), -1.0)
+//                    push.pushDirection = CGVectorMake(CGFloat((Double(arc4random()) / 0x100000000) * (1.0 - -1.0) + -1.0), CGFloat(channel.averagePowerLevel / Float(50.0)))
+                    let angle = CGFloat((Double(arc4random()) / 0x100000000) * (3 * M_PI_4 - M_PI_4) + M_PI_4)
+                    let force = CGFloat(((400 - (channel.averagePowerLevel) * (channel.averagePowerLevel)) / 400.0))
+                    NSLog("force: \(force) | angle: \(angle)")
+                    push.angle = angle
+                    push.magnitude = force
                     self.animator?.addBehavior(push)
-//                    UIView.animateWithDuration(0.4, animations: { () -> Void in
-//                        let x = arc4random_uniform(UInt32(self.view.frame.width))
-//                        let y = self.view.frame.height - pLevel * 6
-//                        bubble.center = CGPointMake(CGFloat(x), y)
-//                        //bubble.center = self.view.center
-//                        
-//                        }, completion: { (success) -> Void in
-//                            
-//                            //bubble.removeFromSuperview()
-//                            
-//                    })
-                    
-                    
                 })
-                
             }
-            
-            
-            
-            
-            print("Audio Power Level = \(channel.averagePowerLevel) & Peak Hold Level = \(channel.peakHoldLevel)")
         }
-        
-        
     }
     
     override func touchesBegan(touches: Set<UITouch>?, withEvent event: UIEvent?) {
@@ -138,6 +122,12 @@ class ViewController: UIViewController, AVCaptureAudioDataOutputSampleBufferDele
         // Dispose of any resources that can be recreated.
     }
     
+    func removeBubble(bubble: Bubble) {
+        bubbles.removeAtIndex(bubbles.indexOf(bubble)!)
+        collisionBehavior.removeItem(bubble)
+        bubbleBehavior.removeItem(bubble)
+        bubble.removeFromSuperview()
+    }
     
 }
 
